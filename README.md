@@ -6,19 +6,18 @@ Description:
  - LLM Model
  - Chat should be persistent
 
+APIs
+-----
 
-- Login 
-- Chat
-- Admin
-- Model
-- Database
-
-
-- User will choose a llm model 
-  - GPT-2
-  - GPT-3
-
-- User will start the conversation with the model
-  - User's chat should be persistent
+1. User Login -> /login
+2. Start Chat -> /chat
+3. Previous Chat -> /previous_chat
 
 
+Models
+------
+
+1. User
+2. Chats
+3. LLM Model
+4. Message
