@@ -37,27 +37,42 @@ def start_chat():
 
     return jsonify({
         'chat_id': new_chat.id,
-        'model': llm_model.name,
+        'model': llm_model.id,
         'initial_response': response
     }), 201
 
-
-@api.route('/chats', methods=['GET'])
+@api.route('/chats/<int:llm_model_id>', methods=['GET'])
 @login_required
-def get_previous_chats():
-    # Get all chats for the current user
-    chats = Chat.query.filter_by(user_id=current_user.id).order_by(Chat.created_at.desc()).all()
+def get_previous_chats(llm_model_id):
+
+    chats = Chat.query.filter_by(llm_model_id=llm_model_id, user_id=current_user.id).all()
+
+    if not chats:
+        return jsonify({'error': 'No chats found'}), 404
 
     return jsonify({
-        'chats': [
-            {
-                'id': chat.id,
-                'title': chat.title,
-                'model': chat.llm_model.name,
-                'created_at': chat.created_at.isoformat()
-            } for chat in chats
-        ]
+        'chats': [chat.serialize() for chat in chats]
     }), 200
+
+
+@api.route('/chats/<int:chat_id>/messages', methods=['POST'])
+@login_required
+def send_message(chat_id):
+    data = request.json
+    message = data.get('message')
+
+    chat = Chat.query.filter_by(
+        id=chat_id,
+        user_id=current_user.id
+    ).first()
+
+    if not chat:
+        return jsonify({'error': 'Chat not found'}), 404
+
+    # Generate model response
+    response = LLMHandler.generate_response(chat.llm_model.name, message)
+
+    return jsonify({'response': response}), 200
 
 
 @api.route('/chats/<int:chat_id>', methods=['DELETE'])

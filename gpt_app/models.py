@@ -38,6 +38,15 @@ class Chat(db.Model):
     user = db.relationship('User', backref=db.backref('chats', lazy=True))
     llm_model = db.relationship('LLMModel', backref=db.backref('chats', lazy=True))
 
+    def serialize(self):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'llm_model_id': self.llm_model_id,
+            'title': self.title,
+            'created_at': self.created_at
+        }
+
 
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
