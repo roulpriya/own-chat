@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_login import login_required, current_user
 
-from .gpt_handler import LLMHandler
+from .gpt_handler import LLMHandler, get_llm_handler
 from .models import db, LLMModel, Chat
 
 api = Blueprint('api', __name__)
@@ -33,7 +33,7 @@ def start_chat():
     db.session.add(new_chat)
     db.session.commit()
 
-    response = LLMHandler.generate_response(model_name, "")
+    response = LLMHandler.generate_response(model_name, model_name, "", ['Hello World'])
 
     return jsonify({
         'chat_id': new_chat.id,
@@ -70,7 +70,8 @@ def send_message(chat_id):
         return jsonify({'error': 'Chat not found'}), 404
 
     # Generate model response
-    response = LLMHandler.generate_response(chat.llm_model.name, message)
+    llm_handler = get_llm_handler('openai')
+    response = llm_handler.generate_response(self=chat.llm_model.name, model_name=chat.llm_model.name, system_message=chat.title, messages=[message], )
 
     return jsonify({'response': response}), 200
 
